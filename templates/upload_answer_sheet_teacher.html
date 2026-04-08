@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Answer Sheet for Student | AES_AI</title>
+   
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+   
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+   
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+   
+    <style>
+        /* REMOVE NUMBER INPUT SCROLL (ARROWS) */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield; /* Firefox */
+}
+        /* Hide all scrollbars but keep scrolling */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        html {
+            scrollbar-width: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+        }
+       
+        .drop-zone {
+            transition: all 0.4s ease;
+        }
+       
+        .drop-zone.dragover {
+            background: rgba(34, 211, 238, 0.1);
+            border-color: #22d3ee;
+            transform: scale(1.02);
+        }
+
+        /* Dark Select Styling */
+        select {
+            background-color: #1e2937;
+            color: white;
+            border: 1px solid #475569;
+        }
+        
+        select:focus {
+            border-color: #22d3ee;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+        }
+
+        /* Option styling (limited browser support) */
+        option {
+            background-color: #1e2937;
+            color: white;
+            padding: 12px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <!-- Background Particles -->
+    <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center text-2xl">
+                    📤
+                </div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+           
+            <div class="flex items-center gap-8 text-sm font-medium">
+                <a href="{{ url_for('teacher_home') }}" class="hover:text-cyan-400 transition">Home</a>
+                <a href="{{ url_for('teacher_view_score') }}" class="hover:text-cyan-400 transition">Scores</a>
+                <a href="{{ url_for('teacher_view_uploaded_sheets') }}" class="hover:text-cyan-400 transition">Uploaded Sheets</a>
+                <a href="{{ url_for('teacher_logout') }}" class="text-red-400 hover:text-red-500 transition">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-8 py-16 relative z-10">
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold tracking-tighter mb-4">Upload Answer Sheets</h1>
+            <p class="text-xl text-white/60">Test ID: <span class="font-mono text-cyan-400">{{ test_id }}</span></p>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="mb-8 bg-emerald-400/10 border border-emerald-400/30 text-emerald-400 px-8 py-5 rounded-3xl">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="glass rounded-3xl p-12">
+            <form method="POST" enctype="multipart/form-data">
+                {% if num %}
+                <!-- Dynamic Fields for Multiple Sheets -->
+                <div id="dynamic_fields" class="space-y-10">
+                    {% for i in range(num) %}
+                    <div class="border border-white/10 rounded-3xl p-8">
+                        <div class="text-sm text-white/50 mb-4">Student {{ i+1 }}</div>
+                       
+                        <div class="mb-8">
+                            <label class="block text-white/70 mb-3">Select Student</label>
+                            <select name="student_id[]" required
+                                    class="w-full px-7 py-6 rounded-3xl focus:outline-none text-white">
+                                <option value="">Choose a student...</option>
+                                {% for student in students %}
+                                <option value="{{ student[0] }}">{{ student[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white/70 mb-3">Answer Sheet File</label>
+                            <div class="drop-zone border-2 border-dashed border-white/30 rounded-3xl p-12 text-center hover:border-cyan-400 transition-all"
+                                 ondragover="this.classList.add('dragover')"
+                                 ondragleave="this.classList.remove('dragover')"
+                                 ondrop="this.classList.remove('dragover')">
+                                <i class="fa-solid fa-cloud-arrow-up text-5xl text-cyan-400 mb-4"></i>
+                                <p class="text-white/70">Drag & drop your file here or</p>
+                                <label class="cursor-pointer inline-block mt-4 px-8 py-4 bg-white/10 hover:bg-cyan-400 hover:text-slate-950 rounded-3xl text-sm font-medium transition">
+                                    Browse Files
+                                    <input type="file" name="file[]" accept=".pdf,.png,.jpg,.jpeg,.txt" class="hidden" required>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="submit"
+                        class="mt-12 w-full py-7 bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-semibold text-xl rounded-3xl hover:scale-105 transition-all">
+                    Upload & Evaluate All Sheets
+                </button>
+                
+                {% else %}
+                <!-- Initial Form to choose number of sheets -->
+                <div class="max-w-md mx-auto">
+                    <label class="block text-white/70 mb-4 text-center">How many student answer sheets?</label>
+                    <input type="number"
+                           id="num_sheets"
+                           name="num_sheets"
+                           min="1"
+                           required
+                           class="w-full px-8 py-7 glass rounded-3xl text-center text-3xl focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                   
+                    <button type="submit"
+                            class="mt-10 w-full py-7 bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-semibold rounded-3xl hover:scale-105 transition-all">
+                        Generate Upload Fields
+                    </button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="text-center mt-10">
+            <a href="{{ url_for('teacher_home') }}"
+               class="inline-flex items-center gap-3 text-white/60 hover:text-cyan-400 transition">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Teacher Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.width = p.style.height = (Math.random() * 6 + 3) + 'px';
+                p.style.animationDuration = (Math.random() * 45 + 30) + 's';
+                p.style.animationDelay = '-' + Math.random() * 50 + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        // Drag and drop visual feedback
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+            });
+        });
+    </script>
+</body>
+</html>

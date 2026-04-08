@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | AES_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+        font-family: 'Inter', system-ui, sans-serif;
+        min-height: 100vh;
+    }
+    .glass {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .neon-cyan {
+        text-shadow: 0 0 30px #22d3ee;
+    }
+    .card-hover {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+        transform: translateY(-12px) scale(1.03);
+        box-shadow: 0 0 40px rgba(34, 211, 238, 0.3);
+    }
+
+    /* 🔥 Scrollbar Styling */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #22d3ee, #8b5cf6);
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #22d3ee;
+    }
+/* Hide scrollbar everywhere but allow scroll */
+html, body {
+    overflow-y: auto;
+    -ms-overflow-style: none;  /* IE, Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+/* Chrome, Safari, Edge */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+}
+</style>
+</head>
+<body class="text-white relative overflow-y-auto">
+    <!-- Background Particles -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute inset-0 bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:50px_50px] opacity-10"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-11 h-11 bg-gradient-to-br from-cyan-400 to-violet-500 rounded-2xl flex items-center justify-center text-3xl shadow-xl">🧠</div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+            <div class="flex gap-8 text-sm font-medium">
+                <a href="{{ url_for('index') }}" class="hover:text-cyan-400 transition-colors">Home</a>
+                <a href="{{ url_for('admin_home') }}" class="text-cyan-400 font-semibold">Admin</a>
+                <a href="{{ url_for('admin_students') }}" class="hover:text-cyan-400 transition-colors">Students</a>
+                <a href="{{ url_for('admin_teachers') }}" class="hover:text-cyan-400 transition-colors">Teachers</a>
+                <a href="{{ url_for('admin_logout') }}" class="hover:text-red-400 transition-colors">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-8 py-16">
+        <!-- Welcome Header -->
+        <div class="mb-16">
+            <h1 class="text-6xl font-bold tracking-tighter mb-4">Admin Empowerment Platform</h1>
+            <p class="text-2xl text-white/70 max-w-2xl">
+                Streamline control with powerful AI tools. Manage users, monitor evaluations, and shape the future of education.
+            </p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+            <div class="glass rounded-3xl p-8 card-hover">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-white/60 text-sm">Total Students</p>
+                        <p class="text-5xl font-bold mt-2">248</p>
+                    </div>
+                    <div class="text-4xl">🎓</div>
+                </div>
+            </div>
+            <div class="glass rounded-3xl p-8 card-hover">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-white/60 text-sm">Total Teachers</p>
+                        <p class="text-5xl font-bold mt-2">37</p>
+                    </div>
+                    <div class="text-4xl">👨‍🏫</div>
+                </div>
+            </div>
+            <div class="glass rounded-3xl p-8 card-hover">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-white/60 text-sm">Evaluations Today</p>
+                        <p class="text-5xl font-bold mt-2 text-emerald-400">184</p>
+                    </div>
+                    <div class="text-4xl">📊</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Action Cards -->
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Students Card -->
+            <a href="{{ url_for('admin_students') }}" class="group">
+                <div class="glass rounded-3xl p-10 h-full card-hover flex flex-col">
+                    <div class="text-7xl mb-8">👥</div>
+                    <h3 class="text-3xl font-semibold mb-3">Manage Students</h3>
+                    <p class="text-white/60 flex-1">Add, update, delete students and view their performance.</p>
+                    <div class="mt-8 inline-flex items-center gap-3 text-cyan-400 group-hover:gap-5 transition-all">
+                        Go to Students 
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Teachers Card -->
+            <a href="{{ url_for('admin_teachers') }}" class="group">
+                <div class="glass rounded-3xl p-10 h-full card-hover flex flex-col border border-violet-400/30">
+                    <div class="text-7xl mb-8">👨‍🏫</div>
+                    <h3 class="text-3xl font-semibold mb-3">Manage Teachers</h3>
+                    <p class="text-white/60 flex-1">Add, update, delete teachers and monitor their tests.</p>
+                    <div class="mt-8 inline-flex items-center gap-3 text-violet-400 group-hover:gap-5 transition-all">
+                        Go to Teachers 
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- System Overview Card -->
+            <div class="glass rounded-3xl p-10 h-full card-hover flex flex-col">
+                <div class="text-7xl mb-8">📈</div>
+                <h3 class="text-3xl font-semibold mb-3">System Overview</h3>
+                <p class="text-white/60 flex-1">View overall analytics, recent evaluations, and system health.</p>
+                <div class="mt-auto pt-8 text-emerald-400 text-sm font-medium flex items-center gap-2">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    System Healthy
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="mt-20">
+            <h3 class="text-white/60 text-sm font-medium tracking-widest mb-6">QUICK ACCESS</h3>
+            <div class="flex flex-wrap gap-4">
+                <a href="{{ url_for('admin_students') }}" 
+                   class="glass px-8 py-5 rounded-3xl hover:bg-white/10 transition flex items-center gap-3">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Student List</span>
+                </a>
+                <a href="{{ url_for('admin_teachers') }}" 
+                   class="glass px-8 py-5 rounded-3xl hover:bg-white/10 transition flex items-center gap-3">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>Teacher List</span>
+                </a>
+                <a href="{{ url_for('index') }}" 
+                   class="glass px-8 py-5 rounded-3xl hover:bg-white/10 transition flex items-center gap-3">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Public Homepage</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

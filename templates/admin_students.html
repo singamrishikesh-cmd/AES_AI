@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin • Students | AES_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Hide all scrollbars but keep scrolling */
+::-webkit-scrollbar {
+    display: none;
+}
+html {
+    scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide number input spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .glass { background: rgba(255,255,255,0.07); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.1); }
+        .neon-cyan { text-shadow: 0 0 20px #22d3ee; }
+        .neon-btn:hover { box-shadow: 0 0 30px #22d3ee; transform: translateY(-2px); }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <div class="fixed inset-0 pointer-events-none bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:50px_50px] opacity-10"></div>
+
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-violet-500 rounded-2xl flex items-center justify-center text-2xl">🧠</div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+            <div class="flex gap-8 text-sm font-medium">
+                <a href="{{ url_for('admin_home') }}" class="hover:text-cyan-400 transition">Home</a>
+                <a href="{{ url_for('admin_teachers') }}" class="hover:text-cyan-400 transition">Teachers</a>
+                <a href="{{ url_for('admin_students') }}" class="text-cyan-400 font-semibold">Students</a>
+                <a href="{{ url_for('admin_logout') }}" class="hover:text-red-400 transition">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-8 py-12">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-5xl font-bold tracking-tighter">Student Management</h2>
+            
+            <form action="{{ url_for('add_student') }}" method="post" class="flex gap-4">
+                <input type="text" name="username" placeholder="Username" required class="glass px-6 py-4 rounded-3xl focus:outline-none focus:ring-2 focus:ring-cyan-400 w-64">
+                <input type="password" name="password" placeholder="Password" required class="glass px-6 py-4 rounded-3xl focus:outline-none focus:ring-2 focus:ring-cyan-400 w-64">
+                <button type="submit" class="neon-btn px-10 py-4 bg-transparent border-2 border-cyan-400 hover:bg-cyan-400 hover:text-slate-950 rounded-3xl font-semibold transition-all">
+                    Add Student
+                </button>
+            </form>
+        </div>
+
+        <div class="glass rounded-3xl overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-white/5">
+                    <tr>
+                        <th class="px-8 py-6 text-left text-cyan-400">ID</th>
+                        <th class="px-8 py-6 text-left">Username</th>
+                        <th class="px-8 py-6 text-left">Password</th>
+                        <th class="px-8 py-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr class="border-b border-white/10 hover:bg-white/5 transition-all group">
+                        <td class="px-8 py-6">{{ student[0] }}</td>
+                        <td class="px-8 py-6 font-medium">{{ student[1] }}</td>
+                        <td class="px-8 py-6 font-mono text-white/60">{{ student[2] }}</td>
+                        <td class="px-8 py-6 text-right space-x-3">
+                            <a href="{{ url_for('view_student_scores', student_id=student[0]) }}" 
+                               class="inline-flex items-center gap-2 px-6 py-3 rounded-3xl bg-white/10 hover:bg-cyan-400 hover:text-slate-900 transition">
+                                <i class="fa-solid fa-chart-line"></i> Scores
+                            </a>
+                            <button onclick="document.getElementById('update{{ student[0] }}').showModal()" 
+                                    class="px-6 py-3 rounded-3xl border border-violet-400 text-violet-400 hover:bg-violet-400 hover:text-white transition">
+                                Update
+                            </button>
+                            <form action="{{ url_for('delete_student', student_id=student[0]) }}" method="post" class="inline">
+                                <button type="submit" class="px-6 py-3 rounded-3xl border border-red-400 text-red-400 hover:bg-red-400 hover:text-white transition">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% for student in students %}
+    <dialog id="update{{ student[0] }}" class="glass text-white rounded-3xl p-10 max-w-md w-full backdrop:bg-black/70">
+        <form action="{{ url_for('update_student', student_id=student[0]) }}" method="post">
+            <h3 class="text-2xl font-bold mb-8">Update Student</h3>
+            <input type="text" name="username" value="{{ student[1] }}" class="glass w-full px-6 py-4 rounded-3xl mb-4" required>
+            <input type="password" name="password" value="{{ student[2] }}" class="glass w-full px-6 py-4 rounded-3xl mb-8" required>
+            <div class="flex gap-4">
+                <button type="button" onclick="this.closest('dialog').close()" class="flex-1 py-4 rounded-3xl border border-white/30">Cancel</button>
+                <button type="submit" class="flex-1 py-4 bg-gradient-to-r from-cyan-400 to-violet-500 text-slate-950 font-bold rounded-3xl">Save Changes</button>
+            </div>
+        </form>
+    </dialog>
+    {% endfor %}
+</body>
+</html>

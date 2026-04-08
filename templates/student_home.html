@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | AES_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background: linear-gradient(135deg, #0f172a, #1e2937); }
+        .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.12); }
+        .neon { box-shadow: 0 0 25px #22d3ee; }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <div class="fixed inset-0 bg-[radial-gradient(#22d3ee_0.8px,transparent_1px)] [background-size:60px_60px] opacity-10 pointer-events-none"></div>
+
+    <nav class="glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">🧠</div>
+                <span class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</span>
+            </div>
+            <div class="flex gap-8">
+                <a href="{{ url_for('student_take_test') }}" class="hover:text-cyan-400">Take Test</a>
+                <a href="{{ url_for('upload_test') }}" class="hover:text-cyan-400">Upload Sheet</a>
+                <a href="{{ url_for('student_view_score') }}" class="hover:text-cyan-400">Scores</a>
+                <a href="{{ url_for('view_uploaded_scores') }}" class="hover:text-cyan-400">Uploaded</a>
+                <a href="{{ url_for('student_logout') }}" class="text-red-400 hover:text-red-500">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-8 py-16">
+        <h1 class="text-6xl font-bold tracking-tighter mb-4">Welcome back, Student</h1>
+        <p class="text-xl text-white/60 mb-12">Ready to evaluate your answers with AI?</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a href="{{ url_for('student_take_test') }}" class="glass rounded-3xl p-10 hover:scale-105 transition-all group">
+                <div class="text-6xl mb-6">📝</div>
+                <h3 class="text-2xl font-semibold mb-2">Take a Test</h3>
+                <p class="text-white/60">Answer questions and get instant AI evaluation</p>
+            </a>
+            <a href="{{ url_for('upload_test') }}" class="glass rounded-3xl p-10 hover:scale-105 transition-all group">
+                <div class="text-6xl mb-6">📤</div>
+                <h3 class="text-2xl font-semibold mb-2">Upload Answer Sheet</h3>
+                <p class="text-white/60">Upload handwritten or PDF answers</p>
+            </a>
+            <a href="{{ url_for('student_view_score') }}" class="glass rounded-3xl p-10 hover:scale-105 transition-all group">
+                <div class="text-6xl mb-6">📊</div>
+                <h3 class="text-2xl font-semibold mb-2">View Scores</h3>
+                <p class="text-white/60">Check your performance and feedback</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

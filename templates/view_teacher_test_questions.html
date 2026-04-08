@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Test Questions | AES_AI</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+        }
+        
+        .question-card {
+            transition: all 0.3s ease;
+        }
+        
+        .question-card:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+
+    <!-- Background Particles -->
+    <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-violet-500 rounded-2xl flex items-center justify-center text-2xl">
+                    ❓
+                </div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+            
+            <div class="flex items-center gap-8 text-sm font-medium">
+                <a href="{{ url_for('teacher_home') }}" class="hover:text-cyan-400 transition">Home</a>
+                <a href="{{ url_for('teacher_test_panel') }}" class="hover:text-cyan-400 transition">Test Panel</a>
+                <a href="{{ url_for('teacher_logout') }}" class="text-red-400 hover:text-red-500 transition">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-8 py-16 relative z-10">
+        <div class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-5xl font-bold tracking-tighter">Manage Questions</h1>
+                <p class="text-white/60 text-xl mt-2">Add, view and delete questions for this test</p>
+            </div>
+            <a href="{{ url_for('teacher_home') }}" 
+               class="px-8 py-4 glass rounded-3xl hover:bg-white/10 transition flex items-center gap-3">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Add New Question -->
+        <div class="glass rounded-3xl p-10 mb-16">
+            <h2 class="text-2xl font-semibold mb-8 flex items-center gap-3">
+                <i class="fa-solid fa-plus"></i> Add New Question
+            </h2>
+            <form method="POST" action="{{ url_for('view_teacher_test_questions', test_id=test_id) }}">
+                <div class="grid grid-cols-1 gap-8">
+                    <div>
+                        <label class="block text-white/70 mb-3">Question Text</label>
+                        <input type="text" 
+                               name="question_text" 
+                               placeholder="Enter the question here..." 
+                               required
+                               class="w-full px-7 py-6 glass rounded-3xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder:text-white/50">
+                    </div>
+                    <div>
+                        <label class="block text-white/70 mb-3">Expected Answer</label>
+                        <input type="text" 
+                               name="expected_answer" 
+                               placeholder="Enter the correct/expected answer..." 
+                               required
+                               class="w-full px-7 py-6 glass rounded-3xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder:text-white/50">
+                    </div>
+                </div>
+                <button type="submit" 
+                        name="add_question"
+                        class="mt-10 w-full py-6 bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-semibold rounded-3xl hover:scale-105 transition-all">
+                    Add Question to Test
+                </button>
+            </form>
+        </div>
+
+        <!-- Existing Questions -->
+        <h2 class="text-3xl font-semibold mb-8 flex items-center gap-3">
+            <i class="fa-solid fa-list-check"></i> 
+            Current Questions ({{ questions|length }})
+        </h2>
+
+        <div class="space-y-6">
+            {% if questions %}
+                {% for question in questions %}
+                <div class="glass rounded-3xl p-8 question-card">
+                    <div class="flex justify-between items-start gap-8">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4 mb-6">
+                                <span class="px-5 py-2 bg-white/10 text-xs font-mono rounded-3xl">Q{{ question[0] }}</span>
+                                <h3 class="text-xl font-medium leading-relaxed">{{ question[1] }}</h3>
+                            </div>
+                            
+                            <!-- Expected Answers -->
+                            <div class="pl-4 border-l-2 border-emerald-400/30">
+                                <p class="text-white/60 text-sm mb-3">EXPECTED ANSWERS:</p>
+                                <ul class="space-y-2">
+                                    {% for answer in question_answers[question[0]] %}
+                                    <li class="flex items-center gap-3 text-white/80">
+                                        <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                                        {{ answer[1] }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Delete Button -->
+                        <form method="POST" action="{{ url_for('view_teacher_test_questions', test_id=test_id) }}" class="flex-shrink-0">
+                            <input type="hidden" name="question_id" value="{{ question[0] }}">
+                            <button type="submit" 
+                                    name="delete_question"
+                                    onclick="return confirm('Delete this question?')"
+                                    class="px-8 py-4 border border-red-400/70 text-red-400 hover:bg-red-400 hover:text-white rounded-3xl text-sm font-medium transition-all">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="glass rounded-3xl p-20 text-center">
+                <div class="text-7xl mb-8 opacity-40">❓</div>
+                <h3 class="text-3xl font-medium">No Questions Yet</h3>
+                <p class="text-white/60 mt-4">Use the form above to add your first question.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 35; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.width = p.style.height = (Math.random() * 5 + 2) + 'px';
+                p.style.animationDuration = (Math.random() * 40 + 25) + 's';
+                p.style.animationDelay = '-' + Math.random() * 40 + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+    </script>
+</body>
+</html>

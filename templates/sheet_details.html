@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sheet Details | AES_AI</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+        }
+        
+        .metric-box {
+            transition: all 0.3s ease;
+        }
+        
+        .metric-box:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+
+    <!-- Background Particles -->
+    <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-violet-400 to-cyan-400 rounded-2xl flex items-center justify-center text-2xl">
+                    📊
+                </div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+            
+            <div class="flex items-center gap-8 text-sm font-medium">
+                <a href="{{ url_for('teacher_home') }}" class="hover:text-cyan-400 transition">Home</a>
+                <a href="{{ url_for('teacher_view_uploaded_sheets') }}" class="text-cyan-400 font-semibold">Uploaded Sheets</a>
+                <a href="{{ url_for('teacher_logout') }}" class="text-red-400 hover:text-red-500 transition">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-8 py-16 relative z-10">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-5xl font-bold tracking-tighter mb-4">Evaluation Details</h1>
+                <p class="text-xl text-white/60">
+                    <span class="text-cyan-400 font-medium">{{ sheet.student_username }}</span> 
+                    - 
+                    <span class="text-emerald-400">{{ sheet.test_name }}</span>
+                </p>
+            </div>
+            <div class="flex gap-4">
+                <a href="{{ url_for('download_sheet_report', sheet_id=sheet.sheet_id) }}" 
+                   class="px-8 py-4 bg-gradient-to-r from-violet-400 to-purple-400 text-white font-semibold rounded-3xl hover:scale-105 transition-all flex items-center gap-3">
+                    <i class="fa-solid fa-download"></i>
+                    Download Report (PDF)
+                </a>
+                <a href="{{ url_for('teacher_view_uploaded_sheets') }}" 
+                   class="px-8 py-4 glass rounded-3xl hover:bg-white/10 transition flex items-center gap-3">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back
+                </a>
+            </div>
+        </div>
+
+        <!-- Score Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <!-- Main Score Card -->
+            <div class="glass rounded-3xl p-10 metric-box md:col-span-1">
+                <div class="text-center">
+                    <div class="text-sm text-white/60 mb-3">FINAL SCORE</div>
+                    <div class="mb-6">
+                        <div class="text-6xl font-bold text-emerald-400">{{ sheet.score }}</div>
+                        <div class="text-white/70">out of {{ sheet.total_marks }}</div>
+                    </div>
+                    <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-emerald-400 to-cyan-400" 
+                             style="width: {{ (sheet.score / sheet.total_marks * 100) }}%"></div>
+                    </div>
+                    <div class="mt-4 text-2xl font-bold text-cyan-400">
+                        {{ "%.1f"|format((sheet.score / sheet.total_marks * 100)) }}%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cosine Similarity -->
+            <div class="glass rounded-3xl p-10 metric-box">
+                <div class="flex items-center gap-3 mb-6">
+                    <i class="fa-solid fa-wave-square text-2xl text-violet-400"></i>
+                    <h3 class="text-lg font-semibold">Cosine Similarity</h3>
+                </div>
+                <div class="space-y-4">
+                    <div class="text-5xl font-bold text-violet-400">{{ "%.1f"|format((sheet.evaluation_details.cosine_similarity|default(0)) * 100) }}%</div>
+                    <p class="text-sm text-white/70">
+                        Measures structural and vocabulary similarity between teacher and student answers using TF-IDF vectors.
+                    </p>
+                    <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-violet-400" style="width: {{ (sheet.evaluation_details.cosine_similarity|default(0)) * 100 }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Semantic Similarity -->
+            <div class="glass rounded-3xl p-10 metric-box">
+                <div class="flex items-center gap-3 mb-6">
+                    <i class="fa-solid fa-brain text-2xl text-pink-400"></i>
+                    <h3 class="text-lg font-semibold">Semantic Similarity</h3>
+                </div>
+                <div class="space-y-4">
+                    <div class="text-5xl font-bold text-pink-400">{{ "%.1f"|format((sheet.evaluation_details.semantic_similarity|default(0)) * 100) }}%</div>
+                    <p class="text-sm text-white/70">
+                        Measures meaning similarity. Shows if answers convey the same ideas, even with different words.
+                    </p>
+                    <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-pink-400" style="width: {{ (sheet.evaluation_details.semantic_similarity|default(0)) * 100 }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Syntactic Similarity -->
+            <div class="glass rounded-3xl p-10 metric-box">
+                <div class="flex items-center gap-3 mb-6">
+                    <i class="fa-solid fa-code text-2xl text-cyan-400"></i>
+                    <h3 class="text-lg font-semibold">Syntactic Similarity</h3>
+                </div>
+                <div class="space-y-4">
+                    <div class="text-5xl font-bold text-cyan-400">{{ "%.1f"|format((sheet.evaluation_details.syntactic_similarity|default(0)) * 100) }}%</div>
+                    <p class="text-sm text-white/70">
+                        Measures sentence structure and grammar similarity using POS tagging.
+                    </p>
+                    <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-cyan-400" style="width: {{ (sheet.evaluation_details.syntactic_similarity|default(0)) * 100 }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Metrics -->
+        <div class="glass rounded-3xl p-12 mb-12">
+            <h2 class="text-3xl font-semibold mb-10 flex items-center gap-3">
+                <i class="fa-solid fa-chart-bar"></i> Evaluation Metrics
+            </h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+                <div class="border border-white/10 rounded-2xl p-6 text-center">
+                    <div class="text-sm text-white/60 mb-2">Exact Match</div>
+                    <div class="text-3xl font-bold text-cyan-400">
+                        {{ "%.0f"|format((sheet.evaluation_details.exact_match|default(0)) * 100) }}%
+                    </div>
+                </div>
+                <div class="border border-white/10 rounded-2xl p-6 text-center">
+                    <div class="text-sm text-white/60 mb-2">Partial Match</div>
+                    <div class="text-3xl font-bold text-emerald-400">
+                        {{ "%.0f"|format((sheet.evaluation_details.partial_match|default(0)) * 100) }}%
+                    </div>
+                </div>
+                <div class="border border-white/10 rounded-2xl p-6 text-center">
+                    <div class="text-sm text-white/60 mb-2">Coherence</div>
+                    <div class="text-3xl font-bold text-violet-400">
+                        {{ "%.0f"|format((sheet.evaluation_details.coherence|default(0)) * 100) }}%
+                    </div>
+                </div>
+                <div class="border border-white/10 rounded-2xl p-6 text-center">
+                    <div class="text-sm text-white/60 mb-2">Relevance</div>
+                    <div class="text-3xl font-bold text-amber-400">
+                        {{ "%.0f"|format((sheet.evaluation_details.relevance|default(0)) * 100) }}%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keywords Analysis -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center gap-3 text-emerald-400">
+                        <i class="fa-solid fa-check-circle"></i> Keywords Matched
+                    </h3>
+                    <div class="flex flex-wrap gap-3">
+                        {% if sheet.evaluation_details.keywords_matched %}
+                            {% for kw in sheet.evaluation_details.keywords_matched %}
+                            <span class="px-4 py-2 bg-emerald-400/20 text-emerald-300 rounded-full text-sm font-medium border border-emerald-400/50">
+                                {{ kw }}
+                            </span>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-white/50 text-sm">No keywords matched</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center gap-3 text-red-400">
+                        <i class="fa-solid fa-times-circle"></i> Keywords Missed
+                    </h3>
+                    <div class="flex flex-wrap gap-3">
+                        {% if sheet.evaluation_details.keywords_missed %}
+                            {% for kw in sheet.evaluation_details.keywords_missed %}
+                            <span class="px-4 py-2 bg-red-400/20 text-red-300 rounded-full text-sm font-medium border border-red-400/50">
+                                {{ kw }}
+                            </span>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-white/50 text-sm">All keywords included</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Section -->
+        <div class="glass rounded-3xl p-12 mb-12">
+            <h2 class="text-3xl font-semibold mb-8 flex items-center gap-3">
+                <i class="fa-solid fa-lightbulb"></i> Feedback & Recommendations
+            </h2>
+
+            <div class="space-y-6">
+                {% for feedback_item in sheet.feedback %}
+                {% if feedback_item.strip() %}
+                <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
+                    {% if "🎉" in feedback_item or "🌟" in feedback_item or "👍" in feedback_item or "📝" in feedback_item or "⚠️" in feedback_item or "❌" in feedback_item %}
+                    <div class="flex gap-4">
+                        <div class="text-2xl mt-1">{{ feedback_item.split()[0] }}</div>
+                        <div class="text-white font-medium leading-relaxed">{{ feedback_item[2:] }}</div>
+                    </div>
+                    {% elif "📊" in feedback_item %}
+                    <div class="border-t border-cyan-400/30 pt-4 mt-2">
+                        <div class="text-cyan-400 font-semibold text-lg mb-2">{{ feedback_item }}</div>
+                    </div>
+                    {% elif "🎯" in feedback_item %}
+                    <div class="border-t border-emerald-400/30 pt-4 mt-2">
+                        <div class="text-emerald-400 font-semibold text-lg mb-2">{{ feedback_item }}</div>
+                    </div>
+                    {% elif "💡" in feedback_item %}
+                    <div class="flex gap-4 ml-6">
+                        <div class="text-blue-400 mt-1">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <div class="text-blue-300 leading-relaxed">{{ feedback_item[2:] }}</div>
+                    </div>
+                    {% elif "✅" in feedback_item %}
+                    <div class="flex gap-4 ml-6">
+                        <div class="text-green-400 mt-1">
+                            <i class="fa-solid fa-check-circle"></i>
+                        </div>
+                        <div class="text-green-300 leading-relaxed">{{ feedback_item[2:] }}</div>
+                    </div>
+                    {% else %}
+                    <div class="text-white/80 leading-relaxed">{{ feedback_item }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Detailed Comparison -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <!-- Teacher Answer -->
+            <div class="glass rounded-3xl p-10">
+                <h3 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-emerald-400">
+                    <i class="fa-solid fa-crown"></i> Teacher Answer (Model)
+                </h3>
+                <div class="bg-white/5 rounded-2xl p-8 border border-emerald-400/20 max-h-96 overflow-y-auto">
+                    <p class="text-white/80 leading-relaxed whitespace-pre-wrap">
+                        {{ sheet.model_answer[:1000] }}{% if sheet.model_answer|length > 1000 %}...{% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Student Answer -->
+            <div class="glass rounded-3xl p-10">
+                <h3 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-cyan-400">
+                    <i class="fa-solid fa-user"></i> Student Answer
+                </h3>
+                <div class="bg-white/5 rounded-2xl p-8 border border-cyan-400/20 max-h-96 overflow-y-auto">
+                    <p class="text-white/80 leading-relaxed whitespace-pre-wrap">
+                        {{ sheet.student_answer[:1000] }}{% if sheet.student_answer|length > 1000 %}...{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- OCR Issues -->
+        {% if sheet.evaluation_details.unrecognized_words %}
+        <div class="glass rounded-3xl p-10 mb-12 border border-amber-400/20">
+            <h3 class="text-lg font-semibold mb-4 flex items-center gap-3 text-amber-400">
+                <i class="fa-solid fa-exclamation-triangle"></i> Potential OCR Issues
+            </h3>
+            <p class="text-white/70 mb-4">The following words may be OCR errors:</p>
+            <div class="flex flex-wrap gap-2">
+                {% for word in sheet.evaluation_details.unrecognized_words[:10] %}
+                <span class="px-3 py-2 bg-amber-400/10 text-amber-300 rounded-full text-sm">
+                    {{ word }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Meta Information -->
+        <div class="glass rounded-3xl p-10 text-center border border-white/10">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+                <div>
+                    <div class="text-white/50 mb-2">Uploaded At</div>
+                    <div class="font-medium">{{ sheet.uploaded_at }}</div>
+                </div>
+                <div>
+                    <div class="text-white/50 mb-2">Sheet ID</div>
+                    <div class="font-mono">{{ sheet.sheet_id }}</div>
+                </div>
+                <div>
+                    <div class="text-white/50 mb-2">Total Marks</div>
+                    <div class="font-medium">{{ sheet.total_marks }}</div>
+                </div>
+                <div>
+                    <div class="text-white/50 mb-2">Status</div>
+                    <div class="text-emerald-400 font-medium">Evaluated</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 35; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.width = p.style.height = (Math.random() * 6 + 3) + 'px';
+                p.style.animationDuration = (Math.random() * 45 + 30) + 's';
+                p.style.animationDelay = '-' + Math.random() * 50 + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+    </script>
+</body>
+</html>

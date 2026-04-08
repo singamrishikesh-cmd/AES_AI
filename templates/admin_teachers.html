@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin • Teachers | AES_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Hide all scrollbars but keep scrolling */
+::-webkit-scrollbar {
+    display: none;
+}
+html {
+    scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide number input spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .neon-cyan {
+            text-shadow: 0 0 25px #22d3ee;
+        }
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.01);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+
+    <!-- Background Particles -->
+    <div class="fixed inset-0 pointer-events-none bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:60px_60px] opacity-10"></div>
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-violet-500 rounded-2xl flex items-center justify-center text-2xl">🧠</div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+            <div class="flex gap-8 text-sm font-medium">
+                <a href="{{ url_for('admin_home') }}" class="hover:text-cyan-400 transition-colors">Home</a>
+                <a href="{{ url_for('admin_teachers') }}" class="text-cyan-400 font-semibold">Teachers</a>
+                <a href="{{ url_for('admin_students') }}" class="hover:text-cyan-400 transition-colors">Students</a>
+                <a href="{{ url_for('admin_logout') }}" class="hover:text-red-400 transition-colors">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-8 py-12">
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h2 class="text-5xl font-bold tracking-tighter">Teacher Management</h2>
+                <p class="text-white/60 mt-2">Manage all registered teachers</p>
+            </div>
+            <a href="{{ url_for('add_teacher') }}" 
+               class="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-400 to-violet-500 text-slate-950 font-semibold rounded-3xl hover:scale-105 transition-all">
+                <i class="fa-solid fa-plus"></i>
+                Add New Teacher
+            </a>
+        </div>
+
+        <div class="glass rounded-3xl overflow-hidden">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-white/10 bg-white/5">
+                        <th class="px-8 py-6 text-left text-cyan-400 font-medium">Teacher ID</th>
+                        <th class="px-8 py-6 text-left font-medium">Username</th>
+                        <th class="px-8 py-6 text-left font-medium">Password</th>
+                        <th class="px-8 py-6 text-right font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr class="border-b border-white/10 table-row transition-all">
+                        <td class="px-8 py-6">{{ teacher[0] }}</td>
+                        <td class="px-8 py-6 font-medium">{{ teacher[1] }}</td>
+                        <td class="px-8 py-6 font-mono text-white/60">{{ teacher[2] }}</td>
+                        <td class="px-8 py-6 text-right space-x-4">
+                            <a href="{{ url_for('view_teacher_tests', teacher_id=teacher[0]) }}" 
+                               class="inline-flex items-center gap-2 px-6 py-3 rounded-3xl bg-white/10 hover:bg-cyan-400 hover:text-slate-900 transition-all">
+                                <i class="fa-solid fa-book"></i> View Tests
+                            </a>
+                            <a href="{{ url_for('update_teacher', teacher_id=teacher[0]) }}" 
+                               class="inline-flex items-center gap-2 px-6 py-3 rounded-3xl border border-violet-400 text-violet-400 hover:bg-violet-400 hover:text-white transition-all">
+                                <i class="fa-solid fa-pen"></i> Update
+                            </a>
+                            <form action="{{ url_for('delete_teacher', teacher_id=teacher[0]) }}" method="post" class="inline">
+                                <button type="submit" 
+                                        class="inline-flex items-center gap-2 px-6 py-3 rounded-3xl border border-red-400 text-red-400 hover:bg-red-400 hover:text-white transition-all">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-10 text-center">
+            <a href="{{ url_for('admin_home') }}" 
+               class="inline-flex items-center gap-3 px-8 py-4 glass rounded-3xl text-white/70 hover:text-white transition-colors">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Admin Home
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

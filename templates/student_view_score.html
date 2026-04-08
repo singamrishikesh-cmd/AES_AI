@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Scores | AES_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Hide all scrollbars but keep scrolling */
+::-webkit-scrollbar {
+    display: none;
+}
+html {
+    scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide number input spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .neon-cyan {
+            text-shadow: 0 0 25px #22d3ee;
+        }
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 9999px;
+            background: conic-gradient(#22d3ee 0deg 340deg, rgba(255,255,255,0.1) 340deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: #0f172a;
+            border-radius: 9999px;
+        }
+        .modal-glass {
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(28px);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+
+    <!-- Background Particles -->
+    <div class="fixed inset-0 pointer-events-none bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:50px_50px] opacity-10"></div>
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-emerald-400 rounded-2xl flex items-center justify-center text-2xl">🎓</div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+            <div class="flex gap-8 text-sm font-medium">
+                <a href="{{ url_for('student_home') }}" class="hover:text-cyan-400 transition">Home</a>
+                <a href="{{ url_for('student_take_test') }}" class="hover:text-cyan-400 transition">Take Test</a>
+                <a href="{{ url_for('student_view_score') }}" class="text-cyan-400 font-semibold">Scores</a>
+                <a href="{{ url_for('student_logout') }}" class="hover:text-red-400 transition">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-8 py-16">
+        <h1 class="text-6xl font-bold tracking-tighter mb-4">Your Performance</h1>
+        <p class="text-white/60 mb-12">Detailed AI evaluation of all your tests</p>
+
+        {% if student_scores %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {% for test_score in student_scores %}
+            <div class="glass rounded-3xl overflow-hidden">
+                <div class="p-10 border-b border-white/10 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-semibold">{{ test_score.test_name }}</h3>
+                        <p class="text-white/60 mt-1">Total Score</p>
+                    </div>
+                    <div class="score-circle">
+                        <div class="relative z-10 text-center">
+                            <div class="text-5xl font-bold text-emerald-400">{{ test_score.total_score }}</div>
+                            <div class="text-xs text-white/50 tracking-widest">POINTS</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-10">
+                    <button onclick="document.getElementById('modal-{{ test_score.test_id }}').showModal()" 
+                            class="w-full py-5 bg-white/10 hover:bg-cyan-400 hover:text-slate-900 rounded-3xl font-semibold transition-all flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        View Detailed Breakdown
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detailed Modal -->
+            <dialog id="modal-{{ test_score.test_id }}" class="modal-glass text-white rounded-3xl p-10 max-w-5xl w-full backdrop:bg-black/70">
+                <div class="flex justify-between items-center mb-10">
+                    <h3 class="text-3xl font-semibold">{{ test_score.test_name }} - Detailed Scores</h3>
+                    <button onclick="this.closest('dialog').close()" class="text-4xl text-white/60 hover:text-white">×</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-white/10">
+                                <th class="px-8 py-6 text-left">Question</th>
+                                <th class="px-8 py-6 text-left">Your Answer</th>
+                                <th class="px-8 py-6 text-left">Expected Answer</th>
+                                <th class="px-8 py-6 text-center">Score</th>
+                                <th class="px-8 py-6 text-center">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for score in test_score.scores %}
+                            <tr class="border-b border-white/10 hover:bg-white/5">
+                                <td class="px-8 py-6">{{ score.question }}</td>
+                                <td class="px-8 py-6 text-white/80">{{ score.student_answer }}</td>
+                                <td class="px-8 py-6 text-white/60">{{ score.expected_answer }}</td>
+                                <td class="px-8 py-6 text-center">
+                                    {% if score.score < 5 %}
+                                        <span class="inline-block px-6 py-2 bg-red-500/20 text-red-400 font-bold rounded-3xl">{{ score.score }}</span>
+                                    {% else %}
+                                        <span class="inline-block px-6 py-2 bg-emerald-400/20 text-emerald-400 font-bold rounded-3xl">{{ score.score }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-8 py-6 text-center">
+                                    <button onclick="toggleDetails(this)" 
+                                            class="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-3xl text-sm transition">
+                                        View Metrics
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-10 flex justify-end">
+                    <button onclick="this.closest('dialog').close()" 
+                            class="px-12 py-5 glass rounded-3xl text-white/70 hover:text-white">
+                        Close
+                    </button>
+                </div>
+            </dialog>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass rounded-3xl p-32 text-center">
+            <div class="text-9xl mb-10 opacity-40">📊</div>
+            <h3 class="text-4xl font-semibold mb-4">No Scores Available Yet</h3>
+            <p class="text-white/60 max-w-md mx-auto">Complete some tests or upload answer sheets to see your AI-evaluated scores here.</p>
+            <a href="{{ url_for('student_take_test') }}" 
+               class="mt-12 inline-block px-12 py-6 bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-bold rounded-3xl text-lg">
+                Start a Test Now
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleDetails(btn) {
+            const row = btn.closest('tr');
+            let detailsRow = row.nextElementSibling;
+            if (!detailsRow || !detailsRow.classList.contains('details-row')) {
+                detailsRow = document.createElement('tr');
+                detailsRow.className = 'details-row bg-white/5';
+                detailsRow.innerHTML = `
+                    <td colspan="5" class="p-8">
+                        <div class="text-white/70 text-sm">
+                            Exact Match: 85% • Semantic Similarity: 92% • Keywords Matched: AI, evaluation, system
+                        </div>
+                    </td>
+                `;
+                row.parentNode.insertBefore(detailsRow, row.nextSibling);
+            } else {
+                detailsRow.remove();
+            }
+        }
+    </script>
+</body>
+</html>

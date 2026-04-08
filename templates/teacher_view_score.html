@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher View Scores | AES_AI</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        /* Hide all scrollbars but keep scrolling */
+::-webkit-scrollbar {
+    display: none;
+}
+html {
+    scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide number input spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+        }
+        
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 9999px;
+            background: conic-gradient(#22d3ee 0% var(--score-percent), #334155 var(--score-percent) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            background: #0f172a;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+
+    <!-- Background Particles -->
+    <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-emerald-400 rounded-2xl flex items-center justify-center text-2xl">
+                    📊
+                </div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+            
+            <div class="flex items-center gap-8 text-sm font-medium">
+                <a href="{{ url_for('teacher_home') }}" class="hover:text-cyan-400 transition">Home</a>
+                <a href="{{ url_for('teacher_view_score') }}" class="text-cyan-400 font-semibold">Scores</a>
+                <a href="{{ url_for('teacher_view_uploaded_sheets') }}" class="hover:text-cyan-400 transition">Uploaded Sheets</a>
+                <a href="{{ url_for('teacher_logout') }}" class="text-red-400 hover:text-red-500 transition">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-8 py-16 relative z-10">
+        <h1 class="text-5xl font-bold tracking-tighter mb-4">Student Scores Overview</h1>
+        <p class="text-white/60 text-xl mb-12">Detailed AI-powered evaluation results</p>
+
+        {% if student_scores %}
+        <div class="space-y-12">
+            {% for student_id, student_data in student_scores.items() %}
+            <div class="glass rounded-3xl overflow-hidden">
+                <!-- Student Header -->
+                <div class="bg-white/5 px-10 py-8 flex items-center justify-between">
+                    <div class="flex items-center gap-5">
+                        <div class="w-16 h-16 bg-gradient-to-br from-violet-400 to-cyan-400 rounded-2xl flex items-center justify-center text-4xl">
+                            👤
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-semibold">{{ student_data.student_username }}</h3>
+                            <p class="text-white/50">Student Performance Report</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-right">
+                        <div class="text-sm text-white/50">Overall Performance</div>
+                        <div class="text-5xl font-bold text-emerald-400">
+                            {% set overall_total = 0 %}
+                            {% for test_name, scores in student_data.tests.items() %}
+                                {% set test_scores = scores|map(attribute='score')|reject('none')|list %}
+                                {% set overall_total = overall_total + (test_scores|sum) %}
+                            {% endfor %}
+                            {{ overall_total }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tests for this student -->
+                <div class="p-10">
+                    {% for test_name, scores in student_data.tests.items() %}
+                    <div class="mb-12 last:mb-0">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-2xl font-semibold">{{ test_name }}</h4>
+                            {% set test_score_values = scores|map(attribute='score')|reject('none')|list %}
+                            {% set test_total_score = test_score_values|sum %}
+                            <div class="score-circle" style="--score-percent: {{ (test_total_score / (scores|length * 10)) * 100 }}%;">
+                                <div class="text-center z-10">
+                                    <div class="text-4xl font-bold">{{ test_total_score }}</div>
+                                    <div class="text-xs text-white/50">POINTS</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-full">
+                                <thead>
+                                    <tr class="border-b border-white/10">
+                                        <th class="px-6 py-5 text-left text-cyan-400">Question</th>
+                                        <th class="px-6 py-5 text-left">Expected Answer</th>
+                                        <th class="px-6 py-5 text-left">Student Answer</th>
+                                        <th class="px-6 py-5 text-center">Score</th>
+                                        <th class="px-6 py-5 text-center">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/10">
+                                    {% for score in scores %}
+                                    <tr class="hover:bg-white/5 transition">
+                                        <td class="px-6 py-6">{{ score.question_text }}</td>
+                                        <td class="px-6 py-6 text-white/70">{{ score.expected_answer }}</td>
+                                        <td class="px-6 py-6 text-white/80">{{ score.student_answer }}</td>
+                                        <td class="px-6 py-6 text-center">
+                                            <span class="inline-block px-5 py-1.5 rounded-3xl font-semibold 
+                                                {% if score.score is not none and score.score >= 8 %}bg-emerald-400/20 text-emerald-400
+                                                {% elif score.score is not none and score.score >= 5 %}bg-amber-400/20 text-amber-400
+                                                {% else %}bg-red-400/20 text-red-400{% endif %}">
+                                                {{ score.score if score.score is not none else 'N/A' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-6 text-center">
+                                            <button onclick="toggleDetails(this)" 
+                                                    class="text-xs px-6 py-3 border border-white/30 hover:border-cyan-400 rounded-3xl transition">
+                                                View Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- Collapsible Details -->
+                                    <tr class="hidden details-row bg-white/5">
+                                        <td colspan="5" class="p-8">
+                                            {% if score.details %}
+                                            <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
+                                                <div>
+                                                    <span class="text-white/50">Semantic Similarity</span>
+                                                    <div class="font-mono text-cyan-400">{{ "%.1f"|format(score.details.semantic_similarity * 100) }}%</div>
+                                                </div>
+                                                <div>
+                                                    <span class="text-white/50">Keywords Matched</span>
+                                                    <div class="text-emerald-400">{{ score.details.keywords_matched|join(', ') or 'None' }}</div>
+                                                </div>
+                                                <div>
+                                                    <span class="text-white/50">Penalty Applied</span>
+                                                    <div class="text-red-400">{{ score.details.penalty }} points</div>
+                                                </div>
+                                            </div>
+                                            {% else %}
+                                            <p class="text-white/50 italic">No detailed metrics available for this answer.</p>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass rounded-3xl p-20 text-center">
+            <div class="text-8xl mb-8 opacity-30">📊</div>
+            <h3 class="text-3xl font-medium">No Scores Available</h3>
+            <p class="text-white/60 mt-4 max-w-md mx-auto">Students haven't submitted any answers yet or no evaluations have been processed.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Toggle details row
+        function toggleDetails(btn) {
+            const row = btn.closest('tr').nextElementSibling;
+            row.classList.toggle('hidden');
+        }
+
+        // Floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.width = p.style.height = (Math.random() * 6 + 3) + 'px';
+                p.style.animationDuration = (Math.random() * 45 + 30) + 's';
+                p.style.animationDelay = '-' + Math.random() * 50 + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+    </script>
+</body>
+</html>

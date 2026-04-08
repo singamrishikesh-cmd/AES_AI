@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Teacher | AES_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .neon-cyan {
+            text-shadow: 0 0 25px #22d3ee;
+        }
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.3);
+            border-color: #22d3ee;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white flex items-center justify-center relative overflow-hidden">
+
+    <!-- Background Particles -->
+    <div class="fixed inset-0 pointer-events-none">
+        <div class="absolute inset-0 bg-[radial-gradient(#22d3ee_0.8px,transparent_1px)] [background-size:50px_50px] opacity-10"></div>
+    </div>
+
+    <div class="max-w-lg w-full mx-auto px-6 relative z-10">
+        <!-- Header -->
+        <div class="flex items-center justify-center gap-4 mb-12">
+            <div class="w-14 h-14 bg-gradient-to-br from-cyan-400 to-violet-500 rounded-3xl flex items-center justify-center text-4xl shadow-xl">
+                👨‍🏫
+            </div>
+            <div>
+                <h1 class="text-4xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+                <p class="text-cyan-400 text-sm tracking-widest">ADMIN PANEL</p>
+            </div>
+        </div>
+
+        <div class="glass rounded-3xl p-10 shadow-2xl">
+            <h2 class="text-3xl font-semibold mb-2 text-center">Add New Teacher</h2>
+            <p class="text-white/60 text-center mb-10">Create a new teacher account</p>
+
+            <form action="{{ url_for('add_teacher') }}" method="POST" class="space-y-8">
+                <div>
+                    <label class="block text-sm font-medium text-white/70 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-user"></i>
+                        Username
+                    </label>
+                    <input 
+                        type="text" 
+                        name="username" 
+                        required
+                        class="glass input-focus w-full px-6 py-5 rounded-3xl text-white placeholder:text-white/40 focus:outline-none border border-white/20"
+                        placeholder="Enter teacher username">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-white/70 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-lock"></i>
+                        Password
+                    </label>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        required
+                        class="glass input-focus w-full px-6 py-5 rounded-3xl text-white placeholder:text-white/40 focus:outline-none border border-white/20"
+                        placeholder="Enter secure password">
+                </div>
+
+                <div class="pt-4">
+                    <button 
+                        type="submit"
+                        class="w-full py-6 bg-gradient-to-r from-cyan-400 to-violet-500 hover:from-cyan-300 hover:to-violet-400 text-slate-950 font-bold text-lg rounded-3xl transition-all duration-300 hover:scale-[1.02] shadow-lg">
+                        Add Teacher
+                    </button>
+                </div>
+            </form>
+
+            <!-- Back Button -->
+            <div class="mt-8 text-center">
+                <a href="{{ url_for('admin_teachers') }}" 
+                   class="inline-flex items-center gap-3 text-white/70 hover:text-white transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span class="font-medium">Back to Teachers List</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer note -->
+        <p class="text-center text-white/40 text-xs mt-10">
+            All teachers will have access to create tests and evaluate answers
+        </p>
+    </div>
+
+</body>
+</html>

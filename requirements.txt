@@ -1,0 +1,13 @@
+Flask==2.3.3 
+Flask-MySQLdb==1.0.1 
+pandas==2.0.3 
+nltk==3.8.1 
+sentence-transformers==2.2.2 
+scikit-learn==1.3.0 
+language-tool-python==2.7.1 
+pdf2image==1.16.3 
+PyPDF2==3.0.1 
+pytesseract==0.3.10 
+Pillow==10.0.0 
+opencv-python==4.8.0.74 
+reportlab==4.0.7

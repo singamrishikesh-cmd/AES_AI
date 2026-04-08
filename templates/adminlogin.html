@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | AES_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .neon-cyan {
+            text-shadow: 0 0 30px #22d3ee,
+                         0 0 60px #22d3ee;
+        }
+        .login-card {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .login-card:hover {
+            transform: scale(1.03);
+        }
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.25);
+            border-color: #22d3ee;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen relative overflow-hidden">
+
+    <!-- Animated Background -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute inset-0 bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:60px_60px] opacity-10"></div>
+    </div>
+
+    <div class="max-w-md w-full mx-auto px-6 relative z-10">
+        <!-- Logo -->
+        <div class="flex justify-center mb-12">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-cyan-400 to-violet-500 rounded-3xl flex items-center justify-center text-5xl shadow-2xl">
+                    🧠
+                </div>
+                <div class="text-5xl font-bold tracking-tighter neon-cyan">AES_AI</div>
+            </div>
+        </div>
+
+        <div class="glass rounded-3xl p-10 login-card shadow-2xl">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-semibold">Admin Login</h2>
+                <p class="text-white/60 mt-2">Access the control center</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('admin_login') }}" class="space-y-8">
+                <div>
+                    <label class="block text-sm text-white/70 mb-3 font-medium">Username</label>
+                    <div class="relative">
+                        <div class="absolute left-6 top-1/2 -translate-y-1/2 text-white/50">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            name="username" 
+                            required
+                            class="input-field glass w-full pl-14 pr-6 py-5 rounded-3xl text-white placeholder:text-white/40 focus:outline-none border border-white/20"
+                            placeholder="Enter admin username">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm text-white/70 mb-3 font-medium">Password</label>
+                    <div class="relative">
+                        <div class="absolute left-6 top-1/2 -translate-y-1/2 text-white/50">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            required
+                            class="input-field glass w-full pl-14 pr-6 py-5 rounded-3xl text-white placeholder:text-white/40 focus:outline-none border border-white/20"
+                            placeholder="Enter password">
+                    </div>
+                </div>
+
+                {% if error %}
+                <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-6 py-4 rounded-2xl text-sm">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <button 
+                    type="submit"
+                    class="w-full py-6 bg-gradient-to-r from-cyan-400 to-violet-500 text-slate-950 font-bold text-lg rounded-3xl hover:brightness-110 transition-all duration-300">
+                    Sign In as Admin
+                </button>
+            </form>
+
+            <!-- Decorative footer -->
+            <div class="mt-10 text-center">
+                <p class="text-white/40 text-xs">
+                    Secure access for authorized administrators only
+                </p>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="text-center mt-8">
+            <a href="{{ url_for('index') }}" 
+               class="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Homepage
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

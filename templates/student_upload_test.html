@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Answer Sheet | AES_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Hide all scrollbars but keep scrolling */
+::-webkit-scrollbar {
+    display: none;
+}
+html {
+    scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide number input spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .neon-cyan {
+            text-shadow: 0 0 25px #22d3ee;
+        }
+        .drop-zone {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .drop-zone:hover {
+            border-color: #22d3ee;
+            background: rgba(34, 211, 238, 0.05);
+            transform: scale(1.02);
+        }
+        .drop-zone.dragover {
+            border-color: #22d3ee;
+            background: rgba(34, 211, 238, 0.15);
+            box-shadow: 0 0 40px rgba(34, 211, 238, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white relative">
+
+    <!-- Background Particles -->
+    <div class="fixed inset-0 pointer-events-none bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:50px_50px] opacity-10"></div>
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-emerald-400 rounded-2xl flex items-center justify-center text-2xl">🎓</div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+            <div class="flex gap-8 text-sm font-medium">
+                <a href="{{ url_for('student_home') }}" class="hover:text-cyan-400 transition">Home</a>
+                <a href="{{ url_for('student_take_test') }}" class="hover:text-cyan-400 transition">Take Test</a>
+                <a href="{{ url_for('upload_test') }}" class="text-cyan-400 font-semibold">Upload Sheet</a>
+                <a href="{{ url_for('student_view_score') }}" class="hover:text-cyan-400 transition">Scores</a>
+                <a href="{{ url_for('student_logout') }}" class="hover:text-red-400 transition">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-2xl mx-auto px-8 py-20">
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold tracking-tighter mb-4">Upload Answer Sheet</h1>
+            <p class="text-xl text-white/60">Select a test and upload your answer sheet for AI evaluation</p>
+        </div>
+
+        {% if tests %}
+        <div class="glass rounded-3xl p-10">
+            <h2 class="text-2xl font-semibold mb-8 text-center">Available Tests for Upload</h2>
+            
+            <div class="space-y-4">
+                {% for test in tests %}
+                <a href="{{ url_for('upload_answer_sheet', test_id=test[0]) }}" 
+                   class="group flex items-center justify-between p-8 glass rounded-3xl hover:bg-white/10 transition-all">
+                    <div class="flex items-center gap-6">
+                        <div class="w-14 h-14 bg-cyan-400/10 text-cyan-400 rounded-2xl flex items-center justify-center text-3xl">
+                            📄
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold group-hover:text-cyan-400 transition-colors">{{ test[1] }}</h3>
+                            <p class="text-white/60 text-sm">Click to upload your answer sheet</p>
+                        </div>
+                    </div>
+                    <div class="text-cyan-400 text-2xl group-hover:translate-x-3 transition-transform">
+                        →
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="glass rounded-3xl p-24 text-center">
+            <div class="text-8xl mb-8 opacity-50">📭</div>
+            <h3 class="text-4xl font-semibold mb-4">No Tests Available</h3>
+            <p class="text-white/60 max-w-md mx-auto">Your teacher hasn't added any tests for upload yet.</p>
+            <a href="{{ url_for('student_home') }}" 
+               class="mt-10 inline-block px-10 py-5 bg-white/10 hover:bg-white/20 rounded-3xl transition">
+                Back to Dashboard
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-12">
+            <a href="{{ url_for('student_home') }}" 
+               class="inline-flex items-center gap-3 text-white/60 hover:text-white transition">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Student Home
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

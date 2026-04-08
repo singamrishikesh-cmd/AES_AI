@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploaded Scores | AES_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Hide all scrollbars but keep scrolling */
+::-webkit-scrollbar {
+    display: none;
+}
+html {
+    scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide number input spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .neon-cyan {
+            text-shadow: 0 0 25px #22d3ee;
+        }
+        .score-bar {
+            height: 8px;
+            background: linear-gradient(to right, #22d3ee, #34d399);
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+
+    <!-- Background Particles -->
+    <div class="fixed inset-0 pointer-events-none bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:50px_50px] opacity-10"></div>
+
+    <!-- Navbar -->
+    <nav class="glass border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-emerald-400 rounded-2xl flex items-center justify-center text-2xl">🎓</div>
+                <h1 class="text-3xl font-bold tracking-tighter neon-cyan">AES_AI</h1>
+            </div>
+            <div class="flex gap-8 text-sm font-medium">
+                <a href="{{ url_for('student_home') }}" class="hover:text-cyan-400 transition">Home</a>
+                <a href="{{ url_for('upload_test') }}" class="hover:text-cyan-400 transition">Upload</a>
+                <a href="{{ url_for('view_uploaded_scores') }}" class="text-cyan-400 font-semibold">Uploaded Scores</a>
+                <a href="{{ url_for('student_logout') }}" class="hover:text-red-400 transition">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-8 py-16">
+        <div class="flex items-center justify-between mb-12">
+            <div>
+                <h1 class="text-5xl font-bold tracking-tighter">Uploaded Answer Sheets</h1>
+                <p class="text-white/60 mt-2">AI-evaluated results from your uploaded sheets</p>
+            </div>
+            <a href="{{ url_for('upload_test') }}" 
+               class="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-semibold rounded-3xl hover:scale-105 transition-all">
+                <i class="fa-solid fa-upload"></i>
+                Upload New Sheet
+            </a>
+        </div>
+
+        {% if scores %}
+        <div class="space-y-8">
+            {% for score in scores %}
+            <div class="glass rounded-3xl p-10">
+                <div class="flex flex-col md:flex-row md:items-center gap-8">
+                    <!-- Test Info -->
+                    <div class="flex-1">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="text-5xl">📄</div>
+                            <div>
+                                <h3 class="text-2xl font-semibold">{{ score.test_name }}</h3>
+                                <p class="text-white/60 text-sm">{{ score.uploaded_at }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-8">
+                            <div>
+                                <div class="text-6xl font-bold text-emerald-400">{{ score.score }}/10</div>
+                                <div class="text-white/50 text-sm mt-1">FINAL SCORE</div>
+                            </div>
+                            
+                            <div class="flex-1">
+                                <div class="h-2.5 bg-white/10 rounded-full overflow-hidden">
+                                    <div class="score-bar" style="width: {{ (score.score / 10) * 100 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Button -->
+                    <div class="md:w-64">
+                        {% if score.details %}
+                        <button onclick="toggleDetails({{ loop.index }})" 
+                                class="w-full py-5 bg-white/10 hover:bg-cyan-400 hover:text-slate-900 rounded-3xl font-semibold transition-all flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            View AI Analysis
+                        </button>
+                        {% else %}
+                        <div class="w-full py-5 text-center text-white/50 bg-white/5 rounded-3xl">
+                            No detailed analysis available
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Collapsible Details -->
+                {% if score.details %}
+                <div id="details-{{ loop.index }}" class="hidden mt-8 pt-8 border-t border-white/10">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-cyan-400 font-medium mb-4">KEYWORDS ANALYSIS</h4>
+                            {% if score.details.keywords_matched %}
+                            <div class="mb-6">
+                                <p class="text-emerald-400 text-sm mb-2">✅ Matched</p>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for keyword in score.details.keywords_matched %}
+                                    <span class="px-4 py-2 bg-emerald-400/10 text-emerald-400 rounded-3xl text-sm">{{ keyword }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if score.details.keywords_missed %}
+                            <div>
+                                <p class="text-red-400 text-sm mb-2">❌ Missed</p>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for keyword in score.details.keywords_missed %}
+                                    <span class="px-4 py-2 bg-red-400/10 text-red-400 rounded-3xl text-sm">{{ keyword }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-cyan-400 font-medium mb-4">EVALUATION METRICS</h4>
+                            <div class="space-y-6 text-sm">
+                                {% if score.details.semantic_similarity %}
+                                <div class="flex justify-between">
+                                    <span class="text-white/70">Semantic Similarity</span>
+                                    <span class="font-semibold">{{ "%.1f"|format(score.details.semantic_similarity * 100) }}%</span>
+                                </div>
+                                {% endif %}
+                                {% if score.details.keyword_score %}
+                                <div class="flex justify-between">
+                                    <span class="text-white/70">Keyword Score</span>
+                                    <span class="font-semibold">{{ "%.1f"|format(score.details.keyword_score * 100) }}%</span>
+                                </div>
+                                {% endif %}
+                                {% if score.details.penalty_applied %}
+                                <div class="flex justify-between text-orange-400">
+                                    <span>Penalty Applied</span>
+                                    <span>-{{ "%.1f"|format(score.details.penalty_applied) }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass rounded-3xl p-32 text-center">
+            <div class="text-9xl mb-10 opacity-40">📤</div>
+            <h3 class="text-4xl font-semibold mb-4">No Uploaded Scores Yet</h3>
+            <p class="text-white/60 max-w-md mx-auto">Upload an answer sheet to see AI evaluation results here.</p>
+            <a href="{{ url_for('upload_test') }}" 
+               class="mt-12 inline-block px-12 py-6 bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-bold rounded-3xl">
+                Upload Answer Sheet
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleDetails(id) {
+            const details = document.getElementById('details-' + id);
+            if (details) {
+                details.classList.toggle('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

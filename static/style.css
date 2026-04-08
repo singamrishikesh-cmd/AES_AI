@@ -1,0 +1,174 @@
+/* ================================================
+   AES_AI - AI Answer Sheet Evaluator
+   Futuristic Glassmorphism + Neon Theme
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --neon-cyan: #22d3ee;
+    --neon-violet: #a78bfa;
+    --emerald: #34d399;
+    --dark-bg: #0f172a;
+    --glass: rgba(255, 255, 255, 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+    color: #f1f5f9;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Background Particles */
+.bg-particles {
+    position: fixed;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 25% 30%, rgba(34, 211, 238, 0.12) 1px, transparent 1px),
+        radial-gradient(circle at 75% 70%, rgba(167, 139, 250, 0.08) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.6;
+}
+
+/* Glassmorphism */
+.glass {
+    background: var(--glass);
+    backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Neon Effects */
+.neon-cyan {
+    text-shadow: 0 0 20px var(--neon-cyan),
+                 0 0 40px var(--neon-cyan);
+}
+
+.neon-violet {
+    text-shadow: 0 0 20px var(--neon-violet),
+                 0 0 40px var(--neon-violet);
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(90deg, #22d3ee, #67e8f9);
+    color: #0f172a;
+    font-weight: 700;
+    border: none;
+    transition: all 0.4s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 0 30px #22d3ee;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 2px solid #22d3ee;
+    color: #22d3ee;
+    font-weight: 600;
+    transition: all 0.4s ease;
+}
+
+.btn-secondary:hover {
+    background: #22d3ee;
+    color: #0f172a;
+    box-shadow: 0 0 25px #22d3ee;
+}
+
+/* Cards */
+.card {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 25px 50px -12px rgb(34 211 238 / 0.25);
+}
+
+/* Inputs */
+.input {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.input:focus {
+    border-color: #22d3ee;
+    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.2);
+    outline: none;
+}
+
+/* Tables */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    color: #67e8f9;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+tr {
+    transition: background 0.3s ease;
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Score Circle */
+.score-circle {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 9999px;
+    background: conic-gradient(#22d3ee var(--score), rgba(255,255,255,0.08) var(--score));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.score-circle::after {
+    content: '';
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: #0f172a;
+    border-radius: 9999px;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.floating {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Utility */
+.text-glow {
+    text-shadow: 0 0 15px currentColor;
+}
+
+.rounded-3xl {
+    border-radius: 1.75rem;
+}
