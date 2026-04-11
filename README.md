@@ -119,7 +119,7 @@ pip install -r requirements.txt
 ### 5️⃣ Run the project
 
 ```bash
-python app.py
+python admin.py
 ```
 
 ---
