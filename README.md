@@ -6,7 +6,7 @@ The **AI Answer Sheet Evaluator** is an intelligent system designed to automate 
 
 Traditional evaluation methods are time-consuming and subjective. This system solves that problem by analyzing student responses, comparing them with predefined answer keys, and generating accurate scores automatically.
 
-screenshot/preview.gif
+ ![Project Screenshot](screenshot/preview.gif)
 ---
 
 ## 🎯 Objective
